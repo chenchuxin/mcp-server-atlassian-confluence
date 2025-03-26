@@ -78,7 +78,7 @@ describe('Transport Utility', () => {
 			// Make a real API call to get spaces (limiting to 1 result to reduce load)
 			const result = await fetchAtlassian<SpacesResponse>(
 				credentials,
-				'/wiki/api/v2/spaces?limit=1',
+				'/api/v2/spaces?limit=1',
 			);
 
 			// Verify the response structure from the real API
@@ -101,7 +101,7 @@ describe('Transport Utility', () => {
 			await expect(
 				fetchAtlassian(
 					credentials,
-					'/wiki/api/v2/non-existent-endpoint',
+					'/api/v2/non-existent-endpoint',
 				),
 			).rejects.toThrow();
 		}, 15000);
@@ -150,7 +150,7 @@ describe('Transport Utility', () => {
 			// Make a call with custom options
 			const result = await fetchAtlassian<SpacesResponse>(
 				credentials,
-				'/wiki/api/v2/spaces?limit=1',
+				'/sapi/v2/spaces?limit=1',
 				options,
 			);
 

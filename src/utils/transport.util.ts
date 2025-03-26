@@ -23,6 +23,7 @@ export interface RequestOptions {
 	method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
 	headers?: Record<string, string>;
 	body?: unknown;
+	cookies?: string;
 }
 
 /**
@@ -65,17 +66,32 @@ export async function fetchAtlassian<T>(
 	// Ensure path starts with a slash
 	const normalizedPath = path.startsWith('/') ? path : `/${path}`;
 
-	// Construct the full URL
-	const baseUrl = `https://${siteName}.atlassian.net`;
+	// 只在 siteName 不是 http 开头时才添加 https://
+	const baseUrl = siteName.toLowerCase().startsWith('http') ? siteName : `https://${siteName}`;
 	const url = `${baseUrl}${normalizedPath}`;
 
 	// Set up authentication and headers
-	const headers = {
-		Authorization: `Basic ${Buffer.from(`${userEmail}:${apiToken}`).toString('base64')}`,
+	const headers: Record<string, string> = {
 		'Content-Type': 'application/json',
 		Accept: 'application/json',
 		...options.headers,
 	};
+
+	// Add cookie from environment variable if provided
+	const cookieEnv = config.get('ATLASSIAN_COOKIE');
+	if (cookieEnv) {
+		headers['Cookie'] = cookieEnv;
+	}
+
+	// Add cookie from options if provided (overrides environment variable)
+	if (options.cookies) {
+		headers['Cookie'] = options.cookies;
+	}
+
+	// 只在没有 cookie 时添加 Basic Auth
+	if (!headers['Cookie']) {
+		headers['Authorization'] = `Basic ${Buffer.from(`${userEmail}:${apiToken}`).toString('base64')}`;
+	}
 
 	// Prepare request options
 	const requestOptions: RequestInit = {
@@ -83,6 +99,12 @@ export async function fetchAtlassian<T>(
 		headers,
 		body: options.body ? JSON.stringify(options.body) : undefined,
 	};
+
+	// 生成等效的 curl 命令
+	const curlCommand = generateCurlCommand(url, requestOptions);
+	logger.debug(
+		`[src/utils/transport.util.ts@fetchAtlassian] Equivalent curl command:\n${curlCommand}`,
+	);
 
 	logger.debug(
 		`[src/utils/transport.util.ts@fetchAtlassian] Calling Atlassian API: ${url}`,
@@ -189,4 +211,36 @@ export async function fetchAtlassian<T>(
 			error,
 		);
 	}
+}
+
+/**
+ * 生成等效的 curl 命令
+ * @param url 请求 URL
+ * @param options 请求选项
+ * @returns curl 命令字符串
+ */
+function generateCurlCommand(url: string, options: RequestInit): string {
+	const parts = ['curl'];
+
+	// 添加 HTTP 方法
+	if (options.method && options.method !== 'GET') {
+		parts.push(`-X ${options.method}`);
+	}
+	
+	// 添加请求头
+	if (options.headers) {
+		Object.entries(options.headers).forEach(([key, value]) => {
+			parts.push(`-H '${key}: ${value}'`);
+		});
+	}
+
+	// 添加请求体
+	if (options.body) {
+		parts.push(`-d '${options.body}'`);
+	}
+
+	// 添加 URL
+	parts.push(`'${url}'`);
+
+	return parts.join(' ');
 }

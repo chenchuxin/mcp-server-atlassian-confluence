@@ -16,7 +16,7 @@ import {
  * @see https://developer.atlassian.com/cloud/confluence/rest/v2/intro/
  * @constant {string}
  */
-const API_PATH = '/wiki/api/v2';
+const API_PATH = '/api/v2';
 
 /**
  * @namespace VendorAtlassianSpacesService

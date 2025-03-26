@@ -190,7 +190,7 @@ export function formatSpaceDetails(
 	links.push(`- ${formatUrl(fullUrl, 'Open in Confluence')}`);
 
 	if (spaceData.homepageId) {
-		const homepageUrl = `${baseUrl}/wiki/spaces/${spaceData.key}/overview`;
+		const homepageUrl = `${baseUrl}/spaces/${spaceData.key}/overview`;
 		links.push(`- ${formatUrl(homepageUrl, 'View Homepage')}`);
 	}
 
