@@ -126,7 +126,8 @@ You can configure multiple MCP servers in your global config file (`$HOME/.mcp/c
 		"environments": {
 			"ATLASSIAN_SITE_NAME": "your-instance",
 			"ATLASSIAN_USER_EMAIL": "your-email@example.com",
-			"ATLASSIAN_API_TOKEN": "your_api_token"
+			"ATLASSIAN_API_TOKEN": "your_api_token",
+			"ATLASSIAN_COOKIE": "your_cookie_string"
 		}
 	},
 	"@aashari/mcp-server-atlassian-jira": {
@@ -139,7 +140,15 @@ You can configure multiple MCP servers in your global config file (`$HOME/.mcp/c
 }
 ```
 
-Then add both to your AI assistant's configuration.
+### Using Cookies for Authentication
+
+In addition to API token authentication, you can use cookies for requests to Atlassian by:
+
+1. Setting the `ATLASSIAN_COOKIE` environment variable with your cookie string
+2. Adding it to your global config file as shown above
+3. Passing it directly in code using the `cookies` property in request options
+
+This is useful for certain APIs that require cookie-based authentication or when you need to maintain specific session information.
 
 ### Debugging
 

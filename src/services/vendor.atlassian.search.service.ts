@@ -9,7 +9,7 @@ import {
 	SearchResponse,
 } from './vendor.atlassian.search.types.js';
 
-const API_PATH = '/wiki/rest/api/search';
+const API_PATH = '/rest/api/search';
 
 /**
  * Search Confluence content using CQL
